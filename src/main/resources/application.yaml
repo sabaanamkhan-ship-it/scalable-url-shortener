@@ -34,3 +34,4 @@ app:
     multiplier-b: ${SHORTCODE_MULTIPLIER_B}
     multiplier-c: ${SHORTCODE_MULTIPLIER_C}
     offset: ${SHORTCODE_OFFSET}
+    block-size: 1000
