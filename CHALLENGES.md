@@ -61,3 +61,9 @@ Is project ko banate waqt aaye problems, design dilemmas aur unke solutions.
 - **Reason:** YAML mein spaces se hi nesting decide hoti hai. Ye `server.app.base-url` ban gaya, `app.base-url` nahi
 - **Fix:** `app:` ko left se shuru kiya, `spring:` aur `server:` ke level pe
 - **Seekha:** Aisi galti app start pe nahi pakdi jaati, kyunki format valid hai. Sirf setting galat jagah hoti hai, aur error tab aata hai jab code use dhundhta hai
+
+## 10. App start pe "failed to convert String to long"
+- **Problem:** `CodeGenConfig` add karte hi app start nahi hua. Value aa rahi thi `"${SHORTCODE_MULTIPLIER_A}"`
+- **Reason:** Ye variable `.env` mein tha hi nahi, isliye Spring ne placeholder ko jaise ka taisa text maan liya aur long mein convert nahi kar paya
+- **Fix:** `.env` mein `SHORTCODE_*` ki 4 values add ki
+- **Seekha:** Jab tak koi bean config use nahi karta, galat config pakdi nahi jaati. `@ConfigurationProperties` ne startup pe hi fail karke galti dikha di, jo production mein late pata chalne se behtar hai (fail fast)
