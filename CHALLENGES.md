@@ -67,3 +67,9 @@ Is project ko banate waqt aaye problems, design dilemmas aur unke solutions.
 - **Reason:** Ye variable `.env` mein tha hi nahi, isliye Spring ne placeholder ko jaise ka taisa text maan liya aur long mein convert nahi kar paya
 - **Fix:** `.env` mein `SHORTCODE_*` ki 4 values add ki
 - **Seekha:** Jab tak koi bean config use nahi karta, galat config pakdi nahi jaati. `@ConfigurationProperties` ne startup pe hi fail karke galti dikha di, jo production mein late pata chalne se behtar hai (fail fast)
+
+## 11. Transaction propagation se duplicate IDs ka khatra
+- **Problem:** `UrlService.shorten()` aur `IdBlockService.reserveBlock()` dono `@Transactional` the. Default mein andar wala transaction bahar wale mein mil jaata hai
+- **Reason:** URL save fail hone pe poora rollback hota, `next_value` wapas purana ho jaata, par app ki memory mein packet ke IDs bache rehte. Doosra instance wahi packet le leta → duplicate IDs
+- **Fix:** `reserveBlock()` pe `@Transactional(propagation = Propagation.REQUIRES_NEW)`. Packet hamesha alag transaction mein turant commit hota hai
+- **Seekha:** Transaction propagation samajhna zaroori hai. Bonus: lock bhi jaldi khulta hai, URL save hone tak nahi rukta
