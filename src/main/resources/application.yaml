@@ -26,3 +26,11 @@ spring:
 
 server:
   port: 8080
+
+app:
+  base-url: http://localhost:8080
+  shortcode:
+    multiplier-a: ${SHORTCODE_MULTIPLIER_A}
+    multiplier-b: ${SHORTCODE_MULTIPLIER_B}
+    multiplier-c: ${SHORTCODE_MULTIPLIER_C}
+    offset: ${SHORTCODE_OFFSET}

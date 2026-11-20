@@ -32,3 +32,32 @@ Is project ko banate waqt aaye problems, design dilemmas aur unke solutions.
 - **Reason:** Terminal home folder (~) mein tha, project folder mein nahi. Compose current folder mein hi docker-compose.yml dhundta hai
 - **Fix:** `cd` karke project root mein gaye, phir command chalayi
 - **Seekha:** Docker Compose commands hamesha usi folder se chalani hain jahan compose file ho
+
+## 6. App start pe "Communications link failure"
+- **Problem:** App start hote hi Flyway ka lamba error, "Communications link failure"
+- **Reason:** Laptop restart ke baad Docker containers band the, MySQL chal hi nahi raha tha. Asli wajah stack trace ke sabse neeche thi: "Connection refused"
+- **Fix:** `docker compose up -d` se containers start kiye, phir app chalaya
+- **Seekha:** Stack trace mein sabse neeche wala "Caused by" asli root cause hota hai. App start karne se pehle uski dependencies (DB, Redis) chalni chahiye
+
+## 7. One-time links aur forwarding ki problem
+- **Problem:** Link sirf ek baar ya sirf intended insaan hi khol paaye, forward hone pe nahi
+- **Reason:** Short URL bearer token hai, jiske paas link hai wahi access kar sakta hai
+- **Fix:**
+    - `remaining_uses` column (V4 migration) + atomic `UPDATE ... WHERE remaining_uses > 0`, taaki race condition na ho
+    - Limited-use links ko Redis mein cache nahi karna, warna counter bypass ho jaata
+    - WhatsApp/Slack preview bots ek use kha jaate hain, isliye interstitial "Continue" page (planned)
+    - Specific recipient ke liye OTP/password protection (planned)
+- **Seekha:** One-time link forwarding ko poori tarah nahi rokta. Identity verification hi asli solution hai
+
+## 8. Sequential short codes guess ho sakte the
+- **Problem:** Counter + Base62 se codes 1000000, 1000001, 1000002 jaise ban rahe the
+- **Reason:** Sequence predictable thi. Koi bhi agle-pichhle codes try karke doosron ke links khol sakta tha (enumeration attack)
+- **Fix:** Base62 se pehle `CodeShuffler` lagaya: multiply + digit reverse + offset, jo bijection hai. Codes random dikhte hain par unique rehte hain. Secret constants `.env` mein
+- **Rejected alternatives:** id + random number (collision aa jaata), poora random code (har insert pe DB check aur retry)
+- **Seekha:** Uniqueness aur unpredictability alag cheezein hain. Short URL ko secret nahi maanna chahiye, isliye rate limiting bhi lagegi
+
+## 9. YAML mein galat indentation
+- **Problem:** `app:` section galti se `server:` ke andar chala gaya (2 extra spaces)
+- **Reason:** YAML mein spaces se hi nesting decide hoti hai. Ye `server.app.base-url` ban gaya, `app.base-url` nahi
+- **Fix:** `app:` ko left se shuru kiya, `spring:` aur `server:` ke level pe
+- **Seekha:** Aisi galti app start pe nahi pakdi jaati, kyunki format valid hai. Sirf setting galat jagah hoti hai, aur error tab aata hai jab code use dhundhta hai
